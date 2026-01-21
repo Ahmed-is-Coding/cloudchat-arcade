@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-zinc-950 text-zinc-100;
+  background:
+    radial-gradient(1000px 600px at 10% 10%, rgba(99,102,241,0.25), transparent 60%),
+    radial-gradient(900px 600px at 90% 10%, rgba(236,72,153,0.20), transparent 60%),
+    radial-gradient(900px 700px at 50% 90%, rgba(34,197,94,0.10), transparent 60%),
+    #09090b;
+}
+
+/* === Ambient animated background === */
+.cc-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.cc-bg__gradient {
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(120deg,
+    rgba(99,102,241,0.35),
+    rgba(236,72,153,0.25),
+    rgba(34,197,94,0.20),
+    rgba(59,130,246,0.25)
+  );
+  background-size: 240% 240%;
+  filter: blur(40px);
+  opacity: 0.55;
+  animation: ccGradient 18s ease-in-out infinite;
+}
+
+.cc-orb {
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 9999px;
+  filter: blur(30px);
+  opacity: 0.28;
+  mix-blend-mode: screen;
+  animation: ccDrift 22s ease-in-out infinite;
+}
+
+.cc-orb--a {
+  top: 6%;
+  left: 6%;
+  background: radial-gradient(circle at 30% 30%, rgba(99,102,241,0.85), transparent 60%);
+}
+
+.cc-orb--b {
+  top: 10%;
+  right: 4%;
+  animation-duration: 28s;
+  background: radial-gradient(circle at 30% 30%, rgba(236,72,153,0.75), transparent 60%);
+}
+
+.cc-orb--c {
+  bottom: 4%;
+  left: 28%;
+  animation-duration: 26s;
+  background: radial-gradient(circle at 30% 30%, rgba(34,197,94,0.55), transparent 60%);
+}
+
+@keyframes ccGradient {
+  0% { background-position: 0% 50%; transform: scale(1); }
+  50% { background-position: 100% 50%; transform: scale(1.04); }
+  100% { background-position: 0% 50%; transform: scale(1); }
+}
+
+@keyframes ccDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(28px, -18px, 0) scale(1.03); }
+  66% { transform: translate3d(-22px, 16px, 0) scale(0.98); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.cc-glow {
+  box-shadow: 0 0 22px rgba(99,102,241,0.22), 0 0 42px rgba(236,72,153,0.10);
+}
+
+.cc-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.cc-shine::after {
+  content: "";
+  position: absolute;
+  inset: -200% -60% auto;
+  height: 200%;
+  width: 60%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+  transform: rotate(20deg);
+  animation: ccShine 6.5s ease-in-out infinite;
+}
+
+@keyframes ccShine {
+  0% { transform: translateX(-20%) rotate(20deg); opacity: 0; }
+  10% { opacity: 0.55; }
+  30% { opacity: 0; }
+  100% { transform: translateX(220%) rotate(20deg); opacity: 0; }
+}
+
+.neon-card {
+  @apply bg-zinc-900/60 border border-zinc-700/50 rounded-xl backdrop-blur;
+  box-shadow: 0 0 30px rgba(99,102,241,0.12);
+}
+
+.neon-btn {
+  @apply px-3 py-2 rounded-lg bg-indigo-600/80 hover:bg-indigo-500/90 border border-indigo-300/20 transition;
+  box-shadow: 0 0 18px rgba(99,102,241,0.25);
+}
+
+.neon-btn-alt {
+  @apply px-3 py-2 rounded-lg bg-pink-600/70 hover:bg-pink-500/80 border border-pink-300/20 transition;
+  box-shadow: 0 0 18px rgba(236,72,153,0.22);
+}
+
+.neon-input {
+  @apply w-full px-3 py-2 rounded-lg bg-zinc-950/40 border border-zinc-700/60 outline-none focus:border-indigo-400/60;
+}
+
+.scanline::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.03) 0px,
+    rgba(255,255,255,0.03) 1px,
+    transparent 2px,
+    transparent 6px
+  );
+  mix-blend-mode: overlay;
+  opacity: .35;
+}

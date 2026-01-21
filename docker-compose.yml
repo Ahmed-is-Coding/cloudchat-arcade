@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-cloudchat}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cloudchat}
+      POSTGRES_DB: ${POSTGRES_DB:-cloudchat}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  api:
+    build:
+      context: ./backend
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      # Do NOT hardcode an IP here.
+      # The frontend auto-detects the API base from the browser host.
+      # This prevents the common "Failed to fetch" when your LAN IP changes.
+      NEXT_PUBLIC_API_PORT: "8000"
+      NEXT_PUBLIC_JITSI_BASE: ${JITSI_BASE_URL:-https://meet.jit.si}
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
