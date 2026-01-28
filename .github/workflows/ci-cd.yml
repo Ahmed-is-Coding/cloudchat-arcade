@@ -1,0 +1,71 @@
+name: cloudchat-ci-cd
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  OWNER: ${{ github.repository_owner }}
+  API_IMAGE: ghcr.io/${{ github.repository_owner }}/cloudchat-api
+  WEB_IMAGE: ghcr.io/${{ github.repository_owner }}/cloudchat-frontend
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push API
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}:${{ github.sha }}
+            ${{ env.API_IMAGE }}:latest
+
+      - name: Build & push Frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: |
+            ${{ env.WEB_IMAGE }}:${{ github.sha }}
+            ${{ env.WEB_IMAGE }}:latest
+
+  deploy_to_k3s:
+    needs: build_and_push
+    runs-on: [self-hosted, k3s-master]
+    steps:
+      - name: Deploy new images (by commit SHA)
+        run: |
+          set -e
+
+          # Update API (your container name is "api")
+          kubectl -n cloudchat set image deploy/cloudchat-api \
+            api=${API_IMAGE}:${GITHUB_SHA}
+
+          # Update Frontend (container name might be "frontend" or "web")
+          kubectl -n cloudchat set image deploy/cloudchat-frontend \
+            frontend=${WEB_IMAGE}:${GITHUB_SHA} \
+            || kubectl -n cloudchat set image deploy/cloudchat-frontend \
+            web=${WEB_IMAGE}:${GITHUB_SHA}
+
+          kubectl -n cloudchat rollout status deploy/cloudchat-api --timeout=180s
+          kubectl -n cloudchat rollout status deploy/cloudchat-frontend --timeout=180s
